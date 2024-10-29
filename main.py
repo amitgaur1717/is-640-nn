@@ -26,6 +26,8 @@ for k in range(epochs):
         loss = (y_pred - Value(y)) ** 2  # Mean squared error loss
         total_loss += loss
     
+    # Backward pass: reset gradients, calculate new gradients
+    model.zero_grad()  # Clear previous gradients
     total_loss.backward()  # Backpropagation
     
     # Update model parameters using gradient descent
