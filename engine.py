@@ -52,7 +52,7 @@ class Value:
 
     def backward(self):
 
-        # topological order all of the children in the graph
+        # topological order all of the children in graph
         topo = []
         visited = set()
         def build_topo(v):
