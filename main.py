@@ -1,38 +1,33 @@
-import random
 from engine import Value
 from nn import MLP
 
-# Create a simple dataset (e.g., XOR problem)
-data = [
-    ([2.0, 3.0], 1.0),
-    ([3.0, -1.0], -1.0),
-    ([1.0, 1.0], 1.0),
-    ([2.0, -2.0], -1.0)
-]
+# Sample input data (features) and target values
+xs = [[2.0, 3.0, -1.0], 
+      [3.0, -1.0, 0.5], 
+      [0.5, 1.0, 1.0], 
+      [1.0, 1.0, -1.0]]  # Input features
 
-# Initialize a simple MLP model: 2 inputs, one hidden layer with 4 neurons, 1 output
-model = MLP(2, [4, 1])
+ys = [0.0, 1.0, 1.0, 0.0]  # Target values
 
-# Training loop
-epochs = 100  # Number of iterations
-learning_rate = 0.01
+# Initialize the MLP model with 3 input neurons, 2 hidden layers (4 neurons each), and 1 output neuron
+n = MLP(3, [4, 4, 1])
 
-for k in range(epochs):
-    # Forward pass: predict the output for each data point
-    total_loss = Value(0)
-    for x, y in data:
-        x = [Value(xi) for xi in x]  # Convert inputs to Value objects
-        y_pred = model(x)  # Forward pass
-        loss = (y_pred - Value(y)) ** 2  # Mean squared error loss
-        total_loss += loss
-    
-    # Backward pass: reset gradients, calculate new gradients
-    model.zero_grad()  # Clear previous gradients
-    total_loss.backward()  # Backpropagation
-    
+# Training loop over a fixed number of epochs
+for k in range(20):
+    # Forward pass: generate predictions for each input sample
+    ypred = [n(x) for x in xs]
+    # Compute the loss as the sum of squared errors between predictions and targets
+    loss = sum((yout - ygt) ** 2 for ygt, yout in zip(ys, ypred))
+
+    # Reset gradients for all model parameters before backpropagation
+    for p in n.parameters():
+        p.grad = 0.0
+    # Backpropagate the loss to compute gradients for each parameter
+    loss.backward()
+
     # Update model parameters using gradient descent
-    for p in model.parameters():
-        p.data -= learning_rate * p.grad
-    
-    # Print the progress: epoch and current loss
-    print(k, total_loss.data)
+    for p in n.parameters():
+        p.data += -0.1 * p.grad 
+
+    # Print the current epoch number and loss value
+    print(k, loss.data)
